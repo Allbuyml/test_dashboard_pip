@@ -1,0 +1,196 @@
+[
+  {
+    "title": "Q1 Market Expansion",
+    "client_name": "Infobase",
+    "client_slug": "infobase",
+    "project_status": "At Risk",
+    "last_updated": "2026-02-06",
+    "comp_done": 2,
+    "comp_in_progress": 5,
+    "comp_blocked": 2,
+    "comp_not_started": 6,
+    "comp_primary_color": "#10b981",
+    "days_in": 23,
+    "days_left": 52,
+    "pending_deliverables": 8,
+    "prog_completed": 2,
+    "prog_working": 5,
+    "prog_upcoming": 6,
+    "insight_opportunity": "Research-to-pipeline mechanics can convert survey respondents into qualified leads",
+    "citation_opportunity": "00:07:25–00:11:51",
+    "insight_risk": "Price threshold uncertainty — lack clarity on upper price limit while remaining competitive",
+    "citation_risk": "00:25:28–00:26:23",
+    "insight_action": "Q1 product focus confirmed: Classroom Video On Demand, Learn360, and Credo Source",
+    "citation_action": "00:11:54–00:14:14",
+    "blockers": [
+      { "sev": "critical", "title": "Research Brief Kickoff Not Scheduled", "owner": "Nicole Lang (PIP) + Kari Houle", "due_date": "2026-01-14", "days_over": 23, "impact": "Survey launch timeline at risk. Cannot begin question development without alignment session.", "next": "Nicole to resend calendar invite with urgency flag" },
+      { "sev": "high", "title": "Competitive Materials Not Received", "owner": "Shannon Camperson", "due_date": "2026-01-14", "days_over": 23, "impact": "Competitive grid cannot begin. Sales enablement delayed.", "next": "Shannon to upload existing docs to shared folder" }
+    ],
+    "goals": [
+      { "goal": "Q1 Market Research Program", "status": "At Risk", "target": "2026-03-15", "days_left": 37, "owner": "Nicole Lang", "milestones": [ { "text": "Research brief scheduled", "done": false, "overdue": true, "assignee": "Nicole Lang" }, { "text": "Survey questions drafted", "done": false, "overdue": false, "assignee": "Nicole Lang" }, { "text": "Survey launched", "done": false, "overdue": false, "assignee": "Nicole Lang" } ] },
+      { "goal": "Product Messaging", "status": "On Track", "target": "2026-02-20", "days_left": 14, "owner": "Marketing Team", "milestones": [ { "text": "Product taxonomy documented", "done": true, "overdue": false, "assignee": "PIP Team" }, { "text": "Draft messaging framework", "done": false, "overdue": false, "assignee": "Marketing Team" } ] }
+    ],
+    "achievements": [
+      { "icon": "✅", "title": "Product Taxonomy Documented", "date": "2026-01-14", "desc": "Kari Houle provided complete franchise hierarchy" },
+      { "icon": "🎯", "title": "Q1 Product Focus Aligned", "date": "2026-01-14", "desc": "Three priority products confirmed." }
+    ],
+    "gantt_items": [
+      { "name": "Research Planning", "start": "2026-01-14", "end": "2026-02-14", "pct": 20, "status": "At Risk" },
+      { "name": "Competitive Analysis", "start": "2026-02-07", "end": "2026-02-28", "pct": 5, "status": "Blocked" },
+      { "name": "Product Messaging", "start": "2026-01-20", "end": "2026-02-20", "pct": 60, "status": "On Track" },
+      { "name": "SEO Strategy", "start": "2026-02-10", "end": "2026-03-01", "pct": 15, "status": "On Track" }
+    ],
+    "team_client": [
+      { "name": "Shannon Camperson", "role": "VP of Marketing", "auth": "Final approval on all deliverables", "email": "shannon@infobase.com" },
+      { "name": "Kari Houle", "role": "Chief Experience Officer", "auth": "Product roadmap", "email": "kari@infobase.com" }
+    ],
+    "team_pip": [
+      { "name": "Jeff Rucker", "role": "VP Content Marketing", "slack": "@jeff.rucker", "done": 0, "total": 2, "resps": "Overall strategy" },
+      { "name": "Nicole Lang", "role": "Director of Market Insights", "slack": "@nicole.lang", "done": 0, "total": 4, "resps": "Market research" }
+    ],
+    "actions_list": [
+      { "task": "Schedule research brief session", "owner": "Nicole Lang", "org": "PIP", "deadline": "ASAP", "overdue": true },
+      { "task": "Draft product messaging framework", "owner": "Marketing Team", "org": "PIP", "deadline": "Feb 20", "overdue": false }
+    ],
+    "decisions_log": [
+      { "title": "Q1 Product Focus Confirmed", "date": "2026-01-14", "body": "Classroom Video On Demand, Learn360.", "by": "Shannon Camperson", "color": "emerald" }
+    ]
+  },
+  {
+    "title": "Mobile App Launch",
+    "client_name": "Infobase",
+    "client_slug": "infobase",
+    "project_status": "On Track",
+    "last_updated": "2026-02-07",
+    "comp_done": 8,
+    "comp_in_progress": 1,
+    "comp_blocked": 0,
+    "comp_not_started": 1,
+    "comp_primary_color": "#3b82f6",
+    "days_in": 45,
+    "days_left": 15,
+    "pending_deliverables": 1,
+    "prog_completed": 8,
+    "prog_working": 1,
+    "prog_upcoming": 1,
+    "blockers": [],
+    "goals": [
+      { "goal": "App Store Submission", "status": "On Track", "target": "2026-02-20", "days_left": 13, "owner": "Mike Ross", "milestones": [ { "text": "Code Freeze", "done": true, "overdue": false, "assignee": "Dev Team" }, { "text": "Create App Store Listing", "done": false, "overdue": false, "assignee": "Marketing" } ] }
+    ],
+    "achievements": [
+      { "icon": "🚀", "title": "Beta Released", "date": "2026-01-15", "desc": "500 users onboarded successfully" }
+    ],
+    "gantt_items": [
+      { "name": "Development Phase", "start": "2026-01-13", "end": "2026-01-25", "pct": 100, "status": "On Track" },
+      { "name": "QA & Bug Fixes", "start": "2026-01-26", "end": "2026-02-15", "pct": 80, "status": "On Track" }
+    ]
+  },
+  {
+    "title": "ERP Integration",
+    "client_name": "Infobase",
+    "client_slug": "infobase",
+    "project_status": "Blocked",
+    "last_updated": "2026-02-07",
+    "comp_done": 1,
+    "comp_in_progress": 1,
+    "comp_blocked": 3,
+    "comp_not_started": 5,
+    "comp_primary_color": "#ef4444",
+    "days_in": 10,
+    "days_left": 80,
+    "pending_deliverables": 8,
+    "blockers": [
+      { "sev": "critical", "title": "API Docs Missing", "owner": "Vendor", "due_date": "2026-01-28", "days_over": 10, "impact": "Cannot build middleware.", "next": "Meeting with Vendor CTO" }
+    ],
+    "goals": [
+      { "goal": "Middleware Architecture", "status": "Blocked", "target": "2026-02-28", "days_left": 21, "owner": "Tom Backend", "milestones": [ { "text": "Data Mapping", "done": false, "overdue": true, "assignee": "Tom" }, { "text": "Server Setup", "done": true, "overdue": false, "assignee": "DevOps" } ] }
+    ],
+    "achievements": [
+      { "icon": "📝", "title": "Requirements Gathered", "date": "2026-01-20", "desc": "Phase 1 specifications signed off" }
+    ],
+    "gantt_items": [
+      { "name": "Requirements", "start": "2026-01-15", "end": "2026-01-25", "pct": 100, "status": "On Track" },
+      { "name": "API Integration", "start": "2026-02-01", "end": "2026-02-28", "pct": 5, "status": "Blocked" }
+    ]
+  },
+  {
+    "title": "CRM Migration",
+    "client_name": "Horizon Health",
+    "client_slug": "horizon-health",
+    "project_status": "At Risk",
+    "last_updated": "2026-02-08",
+    "comp_done": 4,
+    "comp_in_progress": 3,
+    "comp_blocked": 1,
+    "comp_not_started": 2,
+    "comp_primary_color": "#10b981",
+    "days_in": 30,
+    "days_left": 40,
+    "blockers": [
+      { "sev": "medium", "title": "Sales Team Training Deferred", "owner": "HR Dept", "due_date": "2026-02-05", "days_over": 3, "impact": "Adoption might be slow post-launch.", "next": "Reschedule training for early March" }
+    ],
+    "goals": [
+      { "goal": "Data Migration", "status": "At Risk", "target": "2026-02-25", "days_left": 17, "owner": "Alex Data", "milestones": [ { "text": "Clean old DB", "done": true, "overdue": false, "assignee": "Alex" }, { "text": "Sandbox Test", "done": false, "overdue": true, "assignee": "Alex" } ] }
+    ],
+    "achievements": [
+      { "icon": "🧹", "title": "Data Cleansed", "date": "2026-02-02", "desc": "Removed 15,000 duplicate records" }
+    ],
+    "gantt_items": [
+      { "name": "Data Cleanup", "start": "2026-01-15", "end": "2026-02-05", "pct": 100, "status": "On Track" },
+      { "name": "Sandbox Migration", "start": "2026-02-06", "end": "2026-02-15", "pct": 40, "status": "At Risk" }
+    ]
+  },
+  {
+    "title": "Branding Refresh",
+    "client_name": "Horizon Health",
+    "client_slug": "horizon-health",
+    "project_status": "On Track",
+    "last_updated": "2026-02-08",
+    "comp_done": 6,
+    "comp_in_progress": 2,
+    "comp_blocked": 0,
+    "comp_not_started": 2,
+    "comp_primary_color": "#8b5cf6",
+    "days_in": 15,
+    "days_left": 45,
+    "blockers": [],
+    "goals": [
+      { "goal": "Visual Identity", "status": "On Track", "target": "2026-02-15", "days_left": 7, "owner": "Chloe Design", "milestones": [ { "text": "Logo Approved", "done": true, "overdue": false, "assignee": "Client" }, { "text": "Brand Book", "done": false, "overdue": false, "assignee": "Chloe" } ] }
+    ],
+    "achievements": [
+      { "icon": "✨", "title": "Logo Approved", "date": "2026-02-05", "desc": "Unanimous approval from board" }
+    ],
+    "gantt_items": [
+      { "name": "Moodboards", "start": "2026-01-20", "end": "2026-01-30", "pct": 100, "status": "On Track" },
+      { "name": "Logo Design", "start": "2026-01-30", "end": "2026-02-05", "pct": 100, "status": "On Track" },
+      { "name": "Brand Guidelines", "start": "2026-02-06", "end": "2026-02-15", "pct": 40, "status": "On Track" }
+    ]
+  },
+  {
+    "title": "E-commerce Revamp",
+    "client_name": "Quantum Tech",
+    "client_slug": "quantum-tech",
+    "project_status": "Discovery",
+    "last_updated": "2026-02-09",
+    "comp_done": 0,
+    "comp_in_progress": 2,
+    "comp_blocked": 1,
+    "comp_not_started": 12,
+    "comp_primary_color": "#3b82f6",
+    "days_in": 5,
+    "days_left": 85,
+    "blockers": [
+      { "sev": "medium", "title": "Analytics Access Missing", "owner": "Client IT", "due_date": "2026-02-07", "days_over": 2, "impact": "Cannot analyze drop-off rates.", "next": "Follow up email to IT" }
+    ],
+    "goals": [
+      { "goal": "UX Overhaul", "status": "On Track", "target": "2026-03-01", "days_left": 20, "owner": "Ian UX", "milestones": [ { "text": "Wireframes", "done": false, "overdue": false, "assignee": "Ian" }, { "text": "User Testing", "done": false, "overdue": false, "assignee": "Ian" } ] }
+    ],
+    "achievements": [
+      { "icon": "🔍", "title": "Discovery Kickoff", "date": "2026-02-04", "desc": "Project goals aligned with CEO" }
+    ],
+    "gantt_items": [
+      { "name": "UX Research", "start": "2026-02-05", "end": "2026-02-20", "pct": 25, "status": "On Track" },
+      { "name": "Wireframing", "start": "2026-02-15", "end": "2026-03-01", "pct": 0, "status": "Discovery" }
+    ]
+  }
+]
