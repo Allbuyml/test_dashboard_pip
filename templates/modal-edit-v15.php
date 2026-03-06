@@ -89,6 +89,110 @@ $clients = get_terms(array('taxonomy' => 'client', 'hide_empty' => false));
                 </div>
             </div>
 
+            <div id="form-card-weekly" class="form-group hidden space-y-5">
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-slate-800 font-bold text-sm uppercase border-b pb-2 mb-3 text-emerald-600">This Week</h4>
+                        <div id="list-this-week">
+                            <?php if(!empty($this_week)): foreach($this_week as $i => $tw): ?>
+                            <div class="flex gap-2 items-center relative pr-8 bg-slate-50 border border-slate-200 p-2 rounded repeater-row mb-2">
+                                <input type="text" name="this_week[<?php echo $i; ?>][text]" value="<?php echo esc_attr($tw); ?>" class="<?php echo $in; ?> w-full">
+                                <button type="button" class="absolute right-2 text-slate-400 hover:text-red-500 btn-del-row">✖</button>
+                            </div>
+                            <?php endforeach; endif; ?>
+                        </div>
+                        <button type="button" class="btn-add-row mt-2 py-1.5 px-3 bg-slate-100 text-slate-700 rounded text-xs font-bold flex items-center gap-1" data-target="list-this-week" data-template="tpl-this-week"><i data-lucide="plus" class="w-3 h-3"></i> Add Item</button>
+                    </div>
+                    <div>
+                        <h4 class="text-slate-800 font-bold text-sm uppercase border-b pb-2 mb-3 text-blue-600">Next Week</h4>
+                        <div id="list-next-week">
+                            <?php if(!empty($next_week)): foreach($next_week as $i => $nw): ?>
+                            <div class="flex gap-2 items-center relative pr-8 bg-slate-50 border border-slate-200 p-2 rounded repeater-row mb-2">
+                                <input type="text" name="next_week[<?php echo $i; ?>][text]" value="<?php echo esc_attr($nw); ?>" class="<?php echo $in; ?> w-full">
+                                <button type="button" class="absolute right-2 text-slate-400 hover:text-red-500 btn-del-row">✖</button>
+                            </div>
+                            <?php endforeach; endif; ?>
+                        </div>
+                        <button type="button" class="btn-add-row mt-2 py-1.5 px-3 bg-slate-100 text-slate-700 rounded text-xs font-bold flex items-center gap-1" data-target="list-next-week" data-template="tpl-next-week"><i data-lucide="plus" class="w-3 h-3"></i> Add Item</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="form-card-team" class="form-group hidden space-y-5">
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-slate-800 font-bold text-sm uppercase border-b pb-2 mb-3">Client Team</h4>
+                        <div id="list-team-client">
+                            <?php if(!empty($team_client)): foreach($team_client as $i => $tc): ?>
+                            <div class="<?php echo $grp; ?> pr-8 relative">
+                                <?php echo $btn_del; ?>
+                                <div class="space-y-2">
+                                    <input type="text" name="team_client[<?php echo $i; ?>][name]" value="<?php echo esc_attr($tc['name']); ?>" class="<?php echo $in; ?> w-full" placeholder="Name">
+                                    <input type="text" name="team_client[<?php echo $i; ?>][role]" value="<?php echo esc_attr($tc['role']); ?>" class="<?php echo $in; ?> w-full" placeholder="Role">
+                                    <input type="text" name="team_client[<?php echo $i; ?>][email]" value="<?php echo esc_attr($tc['email']); ?>" class="<?php echo $in; ?> w-full" placeholder="Email">
+                                    <input type="text" name="team_client[<?php echo $i; ?>][auth]" value="<?php echo esc_attr($tc['auth']); ?>" class="<?php echo $in; ?> w-full" placeholder="Authority / Focus">
+                                </div>
+                            </div>
+                            <?php endforeach; endif; ?>
+                        </div>
+                        <button type="button" class="btn-add-row mt-2 py-1.5 px-3 bg-slate-100 text-slate-700 rounded text-xs font-bold flex items-center gap-1" data-target="list-team-client" data-template="tpl-team-client"><i data-lucide="plus" class="w-3 h-3"></i> Add Client Member</button>
+                    </div>
+                    <div>
+                        <h4 class="text-slate-800 font-bold text-sm uppercase border-b pb-2 mb-3">PIP Team</h4>
+                        <div id="list-team-pip">
+                            <?php if(!empty($team_pip)): foreach($team_pip as $i => $tp): ?>
+                            <div class="<?php echo $grp; ?> pr-8 relative">
+                                <?php echo $btn_del; ?>
+                                <div class="space-y-2">
+                                    <input type="text" name="team_pip[<?php echo $i; ?>][name]" value="<?php echo esc_attr($tp['name']); ?>" class="<?php echo $in; ?> w-full" placeholder="Name">
+                                    <input type="text" name="team_pip[<?php echo $i; ?>][role]" value="<?php echo esc_attr($tp['role']); ?>" class="<?php echo $in; ?> w-full" placeholder="Role">
+                                    <input type="text" name="team_pip[<?php echo $i; ?>][slack]" value="<?php echo esc_attr($tp['slack']); ?>" class="<?php echo $in; ?> w-full" placeholder="Email / Slack">
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <input type="number" name="team_pip[<?php echo $i; ?>][done]" value="<?php echo esc_attr($tp['done']); ?>" class="<?php echo $in; ?> w-full" placeholder="Tasks Done">
+                                        <input type="number" name="team_pip[<?php echo $i; ?>][total]" value="<?php echo esc_attr($tp['total']); ?>" class="<?php echo $in; ?> w-full" placeholder="Total Tasks">
+                                    </div>
+                                    <input type="text" name="team_pip[<?php echo $i; ?>][resps]" value="<?php echo esc_attr($tp['resps']); ?>" class="<?php echo $in; ?> w-full" placeholder="Responsibilities (comma separated)">
+                                </div>
+                            </div>
+                            <?php endforeach; endif; ?>
+                        </div>
+                        <button type="button" class="btn-add-row mt-2 py-1.5 px-3 bg-slate-100 text-slate-700 rounded text-xs font-bold flex items-center gap-1" data-target="list-team-pip" data-template="tpl-team-pip"><i data-lucide="plus" class="w-3 h-3"></i> Add PIP Member</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="form-card-actions" class="form-group hidden space-y-5">
+                <h4 class="text-slate-800 font-bold text-sm uppercase border-b pb-2 mb-3">Action Items</h4>
+                <div id="list-actions">
+                    <?php if(!empty($actions)): foreach($actions as $i => $al): ?>
+                    <div class="<?php echo $grp; ?> flex gap-3 pr-8 relative items-start">
+                        <?php echo $btn_del; ?>
+                        <div class="w-32">
+                            <label class="<?php echo $lb; ?>">Owner Org</label>
+                            <select name="actions_list[<?php echo $i; ?>][org]" class="<?php echo $sel; ?>">
+                                <option value="PIP" <?php selected($al['org'], 'PIP'); ?>>PIP</option>
+                                <option value="Infobase" <?php selected($al['org'], 'Infobase'); ?>>Client</option>
+                                <option value="Both" <?php selected($al['org'], 'Both'); ?>>Both</option>
+                            </select>
+                        </div>
+                        <div class="flex-1 space-y-2">
+                            <div><label class="<?php echo $lb; ?>">Task</label><input type="text" name="actions_list[<?php echo $i; ?>][task]" value="<?php echo esc_attr($al['task']); ?>" class="<?php echo $in; ?> w-full"></div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div><label class="<?php echo $lb; ?>">Owner Name</label><input type="text" name="actions_list[<?php echo $i; ?>][owner]" value="<?php echo esc_attr($al['owner']); ?>" class="<?php echo $in; ?> w-full"></div>
+                                <div><label class="<?php echo $lb; ?>">Deadline</label><input type="text" name="actions_list[<?php echo $i; ?>][deadline]" value="<?php echo esc_attr($al['deadline']); ?>" class="<?php echo $in; ?> w-full"></div>
+                            </div>
+                        </div>
+                        <div class="w-24 flex items-center justify-center pt-6">
+                            <label class="flex items-center gap-1.5 text-xs text-red-600 font-bold cursor-pointer">
+                                <input type="checkbox" name="actions_list[<?php echo $i; ?>][overdue]" value="1" <?php checked(!empty($al['overdue'])); ?> class="w-4 h-4"> Overdue
+                            </label>
+                        </div>
+                    </div>
+                    <?php endforeach; endif; ?>
+                </div>
+                <button type="button" class="btn-add-row mt-2 py-2 px-4 bg-slate-100 text-slate-700 rounded-lg text-sm font-bold flex items-center gap-2" data-target="list-actions" data-template="tpl-action"><i data-lucide="plus" class="w-4 h-4"></i> Add Action Item</button>
+            </div>
+
             <div id="form-card-blockers" class="form-group hidden">
                 <div id="list-blockers">
                     <?php if($blockers): foreach($blockers as $i => $b): ?>
@@ -152,6 +256,13 @@ $clients = get_terms(array('taxonomy' => 'client', 'hide_empty' => false));
             </div>
         </form>
     </div>
+
+    <template id="tpl-this-week"><div class="flex gap-2 items-center relative pr-8 bg-slate-50 border border-slate-200 p-2 rounded repeater-row mb-2"><input type="text" name="this_week[{i}][text]" class="<?php echo $in; ?> w-full"><button type="button" class="absolute right-2 text-slate-400 hover:text-red-500 btn-del-row">✖</button></div></template>
+    <template id="tpl-next-week"><div class="flex gap-2 items-center relative pr-8 bg-slate-50 border border-slate-200 p-2 rounded repeater-row mb-2"><input type="text" name="next_week[{i}][text]" class="<?php echo $in; ?> w-full"><button type="button" class="absolute right-2 text-slate-400 hover:text-red-500 btn-del-row">✖</button></div></template>
+
+    <template id="tpl-team-client"><div class="<?php echo $grp; ?> pr-8 relative"><?php echo $btn_del; ?><div class="space-y-2"><input type="text" name="team_client[{i}][name]" class="<?php echo $in; ?> w-full" placeholder="Name"><input type="text" name="team_client[{i}][role]" class="<?php echo $in; ?> w-full" placeholder="Role"><input type="text" name="team_client[{i}][email]" class="<?php echo $in; ?> w-full" placeholder="Email"><input type="text" name="team_client[{i}][auth]" class="<?php echo $in; ?> w-full" placeholder="Authority / Focus"></div></div></template>
+    <template id="tpl-team-pip"><div class="<?php echo $grp; ?> pr-8 relative"><?php echo $btn_del; ?><div class="space-y-2"><input type="text" name="team_pip[{i}][name]" class="<?php echo $in; ?> w-full" placeholder="Name"><input type="text" name="team_pip[{i}][role]" class="<?php echo $in; ?> w-full" placeholder="Role"><input type="text" name="team_pip[{i}][slack]" class="<?php echo $in; ?> w-full" placeholder="Email / Slack"><div class="grid grid-cols-2 gap-2"><input type="number" name="team_pip[{i}][done]" class="<?php echo $in; ?> w-full" placeholder="Tasks Done"><input type="number" name="team_pip[{i}][total]" class="<?php echo $in; ?> w-full" placeholder="Total Tasks"></div><input type="text" name="team_pip[{i}][resps]" class="<?php echo $in; ?> w-full" placeholder="Responsibilities (comma separated)"></div></div></template>
+    <template id="tpl-action"><div class="<?php echo $grp; ?> flex gap-3 pr-8 relative items-start"><?php echo $btn_del; ?><div class="w-32"><label class="<?php echo $lb; ?>">Owner Org</label><select name="actions_list[{i}][org]" class="<?php echo $sel; ?>"><option value="PIP">PIP</option><option value="Infobase">Client</option><option value="Both">Both</option></select></div><div class="flex-1 space-y-2"><div><label class="<?php echo $lb; ?>">Task</label><input type="text" name="actions_list[{i}][task]" class="<?php echo $in; ?> w-full"></div><div class="grid grid-cols-2 gap-3"><div><label class="<?php echo $lb; ?>">Owner Name</label><input type="text" name="actions_list[{i}][owner]" class="<?php echo $in; ?> w-full"></div><div><label class="<?php echo $lb; ?>">Deadline</label><input type="text" name="actions_list[{i}][deadline]" class="<?php echo $in; ?> w-full"></div></div></div><div class="w-24 flex items-center justify-center pt-6"><label class="flex items-center gap-1.5 text-xs text-red-600 font-bold cursor-pointer"><input type="checkbox" name="actions_list[{i}][overdue]" value="1" class="w-4 h-4"> Overdue</label></div></div></template>
 
     <template id="tpl-blocker">
         <div class="<?php echo $grp; ?> border-l-4 border-l-slate-300">

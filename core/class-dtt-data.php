@@ -26,9 +26,7 @@ class DTT_Data {
         
         $now = current_time('timestamp');
 
-        // ==========================================
-        // AUTO-CÁLCULO DE MÉTRICAS (Start/End Dates)
-        // ==========================================
+        // AUTO-CÁLCULO DE MÉTRICAS
         $eng_start = get_field('eng_start_date', $pid);
         $eng_end = get_field('eng_end_date', $pid);
 
@@ -40,7 +38,7 @@ class DTT_Data {
         }
 
         if ($eng_end) {
-            $end_ts = strtotime($eng_end) + 86400 - 1; // Hasta el último segundo del día
+            $end_ts = strtotime($eng_end) + 86400 - 1; 
             $days_left = max(0, ceil(($end_ts - $now) / 86400));
         } else {
             $days_left = intval(get_field('days_left', $pid)); 
@@ -57,9 +55,25 @@ class DTT_Data {
             'upcoming' => intval(get_field('prog_upcoming', $pid))
         ];
 
-        // ==========================================
+        // THIS WEEK / NEXT WEEK
+        $this_week = [];
+        foreach($get_rep('this_week') as $tw) {
+            if(!empty($tw['text'])) $this_week[] = $tw['text'];
+        }
+        $next_week = [];
+        foreach($get_rep('next_week') as $nw) {
+            if(!empty($nw['text'])) $next_week[] = $nw['text'];
+        }
+
+        $monday_this = date('M j', strtotime('monday this week'));
+        $friday_this = date('M j', strtotime('friday this week'));
+        $this_week_dates = "$monday_this - $friday_this";
+
+        $monday_next = date('M j', strtotime('monday next week'));
+        $friday_next = date('M j', strtotime('friday next week'));
+        $next_week_dates = "$monday_next - $friday_next";
+
         // COMPLETION RATE CARD
-        // ==========================================
         $comp_done = intval(get_field('comp_done', $pid));
         $comp_inprog = intval(get_field('comp_in_progress', $pid));
         $comp_block = intval(get_field('comp_blocked', $pid));
@@ -81,9 +95,7 @@ class DTT_Data {
             'q_pct' => $qPct, 'primary_color' => $comp_color
         ];
 
-        // ==========================================
-        // BLOCKERS Y ORDENAMIENTO POR SEVERIDAD
-        // ==========================================
+        // BLOCKERS, COMMENTS Y RESOLVED
         $raw_blockers = $get_rep('blockers');
         $blockers = [];
         foreach ($raw_blockers as $b) {
@@ -94,6 +106,27 @@ class DTT_Data {
                 $b['days_over'] = max(0, floor(($now - strtotime($b['due_date_ymd'])) / 86400));
             }
             
+            $b['resolved'] = !empty($b['resolved']); // Booleano
+            
+            // Procesar comentarios enriquecidos
+            $clean_comments = [];
+            if(isset($b['comments']) && is_array($b['comments'])) {
+                foreach($b['comments'] as $c) {
+                    $c_imgs = [];
+                    if(isset($c['images']) && is_array($c['images'])) {
+                        foreach($c['images'] as $img) {
+                            if(!empty($img['id'])) {
+                                $url = wp_get_attachment_url($img['id']);
+                                if($url) $c_imgs[] = ['id' => $img['id'], 'url' => $url];
+                            }
+                        }
+                    }
+                    $c['images'] = $c_imgs;
+                    $clean_comments[] = $c;
+                }
+            }
+            $b['comments'] = $clean_comments;
+
             $clean_links = [];
             if (isset($b['links']) && is_array($b['links'])) {
                 foreach ($b['links'] as $link) { if (is_array($link)) $clean_links[] = $link; }
@@ -115,14 +148,14 @@ class DTT_Data {
 
         $sev_weights = ['critical' => 1, 'high' => 2, 'medium' => 3];
         usort($blockers, function($a, $b) use ($sev_weights) {
+            // Mover los resueltos al fondo
+            if ($a['resolved'] !== $b['resolved']) return $a['resolved'] ? 1 : -1;
             $wa = $sev_weights[strtolower($a['sev'])] ?? 4;
             $wb = $sev_weights[strtolower($b['sev'])] ?? 4;
             return $wa <=> $wb;
         });
 
-        // ==========================================
-        // GOALS Y OTROS REPEATERS
-        // ==========================================
+        // GOALS
         $raw_goals = $get_rep('goals');
         $goals = [];
         foreach ($raw_goals as $g) {
@@ -155,65 +188,45 @@ class DTT_Data {
             $d['date_ymd'] = $to_ymd($d['date']??''); $d['date_fmt'] = $fmt_long($d['date']??''); $decisions[] = $d;
         }
 
-        // ==========================================
-        // GANTT & TIMELINE (Matemática Absoluta Blindada)
-        // ==========================================
+        // GANTT
         $raw_proj_start = $eng_start ?: date('Y-m-d', strtotime('-2 weeks'));
-        
-        try {
-            $start_dt = new DateTime($raw_proj_start);
-        } catch (Exception $e) {
-            $start_dt = new DateTime('-2 weeks');
-        }
+        try { $start_dt = new DateTime($raw_proj_start); } catch (Exception $e) { $start_dt = new DateTime('-2 weeks'); }
 
-        // Encontrar el último Lunes
-        if ($start_dt->format('N') != 1) {
-            $start_dt->modify('last monday');
-        }
+        if ($start_dt->format('N') != 1) { $start_dt->modify('last monday'); }
         
         $p_start_ts = $start_dt->getTimestamp();
-        $total_sec = 70 * 86400; // Exactamente 10 semanas
+        $total_sec = 70 * 86400; // 10 semanas
         
         $timeline_labels = [];
-        // Crear exactamente 11 columnas (0% al 100%)
         for ($i = 0; $i <= 10; $i++) {
             $lbl_dt = clone $start_dt;
             $lbl_dt->modify("+$i weeks");
             $timeline_labels[] = $lbl_dt->format('M j');
         }
         
-        // Calcular marcador "Today"
         $today_pct_raw = (($now - $p_start_ts) / $total_sec) * 100;
         $today_pct = number_format(max(0, min(100, $today_pct_raw)), 4, '.', '');
 
         $gantt = [];
         foreach($get_rep('gantt_items') as $g) {
             if(!is_array($g)) continue;
-            
             $item_start = $g['start'] ?? date('Y-m-d');
             $item_end = $g['end'] ?? date('Y-m-d', strtotime('+1 week'));
-            
             try {
                 $s_dt = new DateTime($item_start);
                 $e_dt = new DateTime($item_end);
             } catch (Exception $e) { continue; }
-            
             $s = $s_dt->getTimestamp();
-            // FIX: Sumar exactamente 23:59:59 al End Date para que cubra el día completo
             $e = $e_dt->getTimestamp() + 86399; 
             
             $left = (($s - $p_start_ts) / $total_sec) * 100;
             $width = (($e - $s) / $total_sec) * 100;
-            
             $left_pct = max(0, $left);
-            if ($left < 0) { $width += $left; } // Si empieza antes de la fecha, reducir ancho visible
+            if ($left < 0) { $width += $left; } 
+            $width_pct = max(0.5, min(100 - $left_pct, $width)); 
             
-            $width_pct = max(0.5, min(100 - $left_pct, $width)); // Mínimo visible 0.5%
-            
-            // FORZAR punto decimal siempre para que CSS lo lea perfecto
             $g['left_pct'] = number_format($left_pct, 4, '.', '');
             $g['width_pct'] = number_format($width_pct, 4, '.', '');
-            
             $g['date_str'] = $s_dt->format('M j') . ' – ' . $e_dt->format('M j');
             $gantt[] = $g;
         }
@@ -235,6 +248,10 @@ class DTT_Data {
             'updated_fmt' => $fmt_long($raw_updated),
             'completion' => $completion,
             'metrics' => $metrics,
+            'this_week' => $this_week,
+            'this_week_dates' => $this_week_dates,
+            'next_week' => $next_week,
+            'next_week_dates' => $next_week_dates,
             'blockers' => $blockers,
             'goals' => $goals,
             'achievements' => $achievements,

@@ -65,7 +65,6 @@ class DTT_CPT {
                 array('key'=>'field_comp_not', 'label'=>'Not Started', 'name'=>'comp_not_started', 'type'=>'number'),
                 array('key'=>'field_comp_color', 'label'=>'Primary Color', 'name'=>'comp_primary_color', 'type'=>'select', 'choices'=>array('#10b981'=>'Emerald (Green)', '#3b82f6'=>'Blue', '#8b5cf6'=>'Purple')),
 
-                // NUEVOS CAMPOS: FECHAS DE ENGAGEMENT PARA AUTO-CÁLCULO
                 array('key'=>'field_eng_start', 'label'=>'Engagement Start', 'name'=>'eng_start_date', 'type'=>'text'),
                 array('key'=>'field_eng_end', 'label'=>'Engagement End', 'name'=>'eng_end_date', 'type'=>'text'),
 
@@ -76,6 +75,14 @@ class DTT_CPT {
                 array('key'=>'field_p_work', 'label'=>'Working', 'name'=>'prog_working', 'type'=>'number'),
                 array('key'=>'field_p_up', 'label'=>'Upcoming', 'name'=>'prog_upcoming', 'type'=>'number'),
                 
+                // NUEVO: This Week & Next Week
+                array('key'=>'field_this_week', 'label'=>'This Week', 'name'=>'this_week', 'type'=>'repeater', 'sub_fields'=>array(
+                    array('key'=>'tw_txt','name'=>'text','type'=>'text'),
+                )),
+                array('key'=>'field_next_week', 'label'=>'Next Week', 'name'=>'next_week', 'type'=>'repeater', 'sub_fields'=>array(
+                    array('key'=>'nw_txt','name'=>'text','type'=>'text'),
+                )),
+
                 array('key'=>'field_blockers', 'label'=>'Blockers', 'name'=>'blockers', 'type'=>'repeater', 'sub_fields'=>array(
                     array('key'=>'bk_sev','name'=>'sev','type'=>'select','choices'=>array('critical'=>'Critical','high'=>'High','medium'=>'Medium')),
                     array('key'=>'bk_tit','name'=>'title','type'=>'text'),
@@ -84,6 +91,18 @@ class DTT_CPT {
                     array('key'=>'bk_dd','name'=>'due_date','type'=>'text'),
                     array('key'=>'bk_nxt','name'=>'next','type'=>'text'),
                     array('key'=>'bk_day','name'=>'days_over','type'=>'number'),
+                    // NUEVO: Estado Resuelto y Comentarios del Cliente
+                    array('key'=>'bk_res','name'=>'resolved','type'=>'true_false', 'default_value' => 0),
+                    array('key'=>'bk_coms','name'=>'comments','type'=>'repeater','sub_fields'=>array(
+                        array('key'=>'bkc_auth','name'=>'author','type'=>'text'),
+                        array('key'=>'bkc_org','name'=>'org','type'=>'text'),
+                        array('key'=>'bkc_txt','name'=>'text','type'=>'wysiwyg', 'media_upload' => 0, 'toolbar' => 'basic'),
+                        array('key'=>'bkc_dt','name'=>'date','type'=>'text'),
+                        array('key'=>'bkc_imgs','name'=>'images','type'=>'repeater','sub_fields'=>array(
+                            array('key'=>'bkci_id','name'=>'id','type'=>'image','return_format'=>'id'),
+                        ))
+                    )),
+                    // ----------------------------------------------------
                     array('key'=>'bk_links','name'=>'links','type'=>'repeater','sub_fields'=>array(
                         array('key'=>'bkl_url','name'=>'url','type'=>'url'),
                         array('key'=>'bkl_lbl','name'=>'label','type'=>'text')
