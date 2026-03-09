@@ -1,15 +1,15 @@
 <?php
 /*
 Plugin Name: Dashboard Task Tracker
-Description: Enterprise Dashboard V16.0 (Robust Fallbacks, Custom URLs, Dynamic Edits).
-Version: 16.0
+Description: Enterprise Dashboard V16.2 (Robust Fallbacks, Custom URLs, Dynamic Edits, Resolved Items Logic).
+Version: 16.2
 Author: JesusDevPIP
 Text Domain: dashboard-task-tracker
 */
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'DTT_VERSION', '16.0' );
+define( 'DTT_VERSION', '16.2' );
 define( 'DTT_PATH', plugin_dir_path( __FILE__ ) );
 define( 'DTT_URL', plugin_dir_url( __FILE__ ) );
 

@@ -2,6 +2,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const refreshIcons = () => { if(typeof lucide !== 'undefined') lucide.createIcons(); };
     refreshIcons();
 
+    // ==========================================
+    // SISTEMA GLOBAL DE NOTIFICACIONES (TOAST)
+    // ==========================================
+    window.dttShowToast = function(message, type = 'success') {
+        let toastContainer = document.getElementById('dtt-toast-container');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'dtt-toast-container';
+            toastContainer.className = 'fixed top-5 right-5 z-[100000] flex flex-col gap-3 pointer-events-none';
+            document.body.appendChild(toastContainer);
+        }
+
+        const toast = document.createElement('div');
+        const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-red-600';
+        const icon = type === 'success' ? 'check-circle' : 'alert-circle';
+        
+        toast.className = `flex items-center gap-3 px-5 py-4 rounded-xl shadow-2xl text-white ${bgColor} transform transition-all duration-300 translate-y-[-100%] opacity-0`;
+        toast.innerHTML = `<i data-lucide="${icon}" class="w-5 h-5"></i><span class="font-bold text-sm">${message}</span>`;
+        
+        toastContainer.appendChild(toast);
+        if(typeof lucide !== 'undefined') lucide.createIcons();
+
+        // Animación de entrada
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-[-100%]', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
+            });
+        });
+
+        // Animación de salida y auto-destrucción
+        setTimeout(() => {
+            toast.classList.remove('translate-y-0', 'opacity-100');
+            toast.classList.add('translate-y-[-100%]', 'opacity-0');
+            setTimeout(() => toast.remove(), 300);
+        }, 4000);
+    };
+
     // 1. Control de TABS
     const tabs = document.querySelectorAll('.tab-btn');
     const views = document.querySelectorAll('.view-section');
@@ -83,6 +121,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const closeEdit = document.getElementById('close-edit-modal');
     if(closeEdit) closeEdit.addEventListener('click', (e) => { e.preventDefault(); toggleModal('edit-modal', false); });
+
+    // ==========================================
+    // TOGGLE LISTA DE RESUELTOS EN MODAL
+    // ==========================================
+    document.body.addEventListener('click', (e) => {
+        const btnToggleResolved = e.target.closest('#btn-toggle-resolved-blockers');
+        if(btnToggleResolved) {
+            e.preventDefault();
+            const list = document.getElementById('list-resolved-blockers');
+            if(list) {
+                list.classList.toggle('hidden');
+            }
+        }
+    });
 
     // ==========================================
     // 3. AUTO-LINKIFY
@@ -398,35 +450,8 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(res => res.json())
             .then(data => {
                 if(data.success) {
-                    const container = document.getElementById('blockers-list-container');
-                    const showResolved = container.getAttribute('data-show-resolved') === 'true';
-
-                    if(!showResolved) {
-                        card.style.transition = 'all 0.3s ease';
-                        card.style.opacity = '0';
-                        card.style.transform = 'scale(0.95)';
-                        setTimeout(() => card.remove(), 300);
-                    } else {
-                        card.className = "rounded-lg border-2 bg-white overflow-hidden p-0 border-emerald-300 opacity-75 blocker-card";
-                        const badgeContainer = card.querySelector('.severity-badge-container');
-                        if(badgeContainer) {
-                            badgeContainer.insertAdjacentHTML('beforeend', '<span class="px-2 py-0.5 text-xs font-bold rounded bg-emerald-200 text-emerald-800">RESOLVED</span>');
-                        }
-                        
-                        resolveBtn.remove();
-                        const overdueBadge = card.querySelector('.overdue-badge');
-                        if(overdueBadge) overdueBadge.remove();
-                        
-                        const formWrapper = card.querySelector('.comment-form-wrapper');
-                        if(formWrapper) {
-                            formWrapper.innerHTML = '<div class="text-xs text-slate-400 text-center py-2 bg-slate-100 rounded-lg border border-slate-200 mt-4">This blocker has been resolved. Comments are closed.</div>';
-                        }
-                    }
-
-                    const countBadge = document.getElementById('blockers-count-badge');
-                    if(countBadge) {
-                        countBadge.innerText = Math.max(0, parseInt(countBadge.innerText) - 1);
-                    }
+                    // Forzar recarga con bypass de cache para que todos los templates se regeneren
+                    window.location.href = window.location.pathname + '?t=' + new Date().getTime() + window.location.hash;
                 } else { 
                     alert('Failed to resolve'); resolveBtn.innerHTML = originalHTML; resolveBtn.disabled = false; 
                 }
@@ -530,16 +555,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 fetch(window.dtt_ajax_url, { method: 'POST', body: formData })
                 .then(res => res.json())
                 .then(data => {
-                    const fb = document.getElementById('notify-feedback');
-                    fb.classList.remove('hidden');
                     if(data.success) {
-                        fb.className = 'text-sm font-bold text-emerald-700 bg-emerald-100 mt-4 p-3 rounded-lg border border-emerald-200';
-                        fb.innerHTML = '✅ Email sent successfully!';
-                        setTimeout(() => { notifyModal.classList.add('hidden'); fb.classList.add('hidden'); }, 2000);
+                        notifyModal.classList.add('hidden');
+                        window.dttShowToast('Email sent successfully!', 'success');
                     } else {
-                        fb.className = 'text-sm font-bold text-red-700 bg-red-100 mt-4 p-3 rounded-lg border border-red-200';
-                        fb.innerHTML = '❌ Failed to send: ' + (data.data?.message || 'Server error');
+                        window.dttShowToast('Failed to send: ' + (data.data?.message || 'Server error'), 'error');
                     }
+                    btnSendNotify.innerHTML = originalHTML;
+                    btnSendNotify.disabled = false;
+                    if(typeof lucide !== 'undefined') lucide.createIcons();
+                })
+                .catch(err => {
+                    window.dttShowToast('Network or Server error', 'error');
                     btnSendNotify.innerHTML = originalHTML;
                     btnSendNotify.disabled = false;
                     if(typeof lucide !== 'undefined') lucide.createIcons();

@@ -6,6 +6,7 @@ $grid_class = $show_project_progress ? 'md:grid-cols-3' : 'md:grid-cols-2 lg:gri
 $show_resolved = false; 
 ?>
 
+
 <div class="space-y-6 font-sans relative">
     
     <div class="bg-gradient-to-br from-red-50 to-amber-50 rounded-xl shadow-md border-2 border-red-200 p-6 relative group">
@@ -18,9 +19,11 @@ $show_resolved = false;
                 <p class="text-sm text-slate-600">Critical blockers requiring immediate action</p>
             </div>
             <div class="ml-auto flex items-center gap-3">
+
                 <button id="btn-open-notify" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
-                    <i data-lucide="mail" class="w-4 h-4"></i> Notify Client
+                    <i data-lucide="mail" class="w-4 h-4"></i> Notify Owner
                 </button>
+
                 <div id="blockers-count-badge" class="px-4 py-2 bg-red-600 text-white rounded-lg font-bold text-2xl"><?php echo count(array_filter($blockers, function($b) { return empty($b['resolved']); })); ?></div>
             </div>
         </div>
@@ -29,7 +32,7 @@ $show_resolved = false;
             <?php foreach($blockers as $b_idx => $b): 
                 $is_resolved = !empty($b['resolved']);
                 
-                // Aplicar lógica de Ocultar Resueltos si la variable está en false
+                // Aplicar lógica de Ocultar Resueltos en el front
                 if (!$show_resolved && $is_resolved) continue;
 
                 $style = $is_resolved ? ['border-emerald-300 opacity-75', 'bg-emerald-200 text-emerald-800'] : match($b['sev']) { 'critical'=>['border-red-300','bg-red-200 text-red-800'], 'high'=>['border-amber-300','bg-amber-200 text-amber-800'], default=>['border-blue-300','bg-blue-200 text-blue-800'] };
@@ -417,8 +420,9 @@ $show_resolved = false;
                     <?php for($i=0; $i<=10; $i++): ?>
                         <div class="absolute top-0 bottom-0 border-l border-slate-100" style="left: <?php echo $i * 10; ?>%;"></div>
                     <?php endfor; ?>
+
                     
-                    <?php if($timeline_dates['show_today']): ?>
+                    <?php var_dump($timeline_dates); if($timeline_dates['show_today']): ?>
                         <div class="absolute top-0 bottom-[-20px] w-[2px] bg-blue-600 z-20" style="left: <?php echo esc_attr($timeline_dates['today_pct']); ?>%;">
                             <div class="absolute -top-1 -left-1 w-2.5 h-2.5 rounded-full bg-blue-600"></div>
                             <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] font-bold text-blue-600 uppercase bg-white px-1">Today</div>
@@ -593,7 +597,6 @@ $show_resolved = false;
                 ?>&#10;&#10;Please let us know if you have any questions or need assistance.&#10;&#10;-- DASHBOARD ACCESS --&#10;Project Link: <?php echo esc_url($share_url ?? get_permalink($pid)); ?>&#10;Password: <?php echo esc_html($share_pass ?? ''); ?>&#10;----------------------&#10;&#10;Best regards,&#10;The PIP Team</textarea>
             </div>
             
-            <div id="notify-feedback" class="text-sm font-medium hidden p-3 rounded-lg border"></div>
         </div>
 
         <div class="px-6 py-4 border-t border-slate-100 flex justify-end gap-3 bg-slate-50">

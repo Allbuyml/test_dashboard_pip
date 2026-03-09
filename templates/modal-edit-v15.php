@@ -2,7 +2,7 @@
 $in = " border border-slate-300 rounded px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-sans";
 $sel = "w-full border border-slate-300 rounded px-3 py-2 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-sans";
 $lb = "block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1";
-$grp = "border border-slate-200 rounded-lg p-5 bg-slate-50 mb-4 relative group repeater-row transition-all hover:border-slate-300";
+$grp = "border border-slate-200 rounded-lg p-5 pb-0 bg-slate-50 mb-4 relative group repeater-row transition-all hover:border-slate-300";
 $btn_del = '<button type="button" class="absolute top-2 right-2 p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors btn-del-row" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>';
 
 $clients = get_terms(array('taxonomy' => 'client', 'hide_empty' => false));
@@ -195,7 +195,9 @@ $clients = get_terms(array('taxonomy' => 'client', 'hide_empty' => false));
 
             <div id="form-card-blockers" class="form-group hidden">
                 <div id="list-blockers">
-                    <?php if($blockers): foreach($blockers as $i => $b): ?>
+                    <?php if($blockers): foreach($blockers as $i => $b): 
+                        if (!empty($b['resolved'])) continue; // Solo mostrar NO resueltos
+                    ?>
                         <div class="<?php echo $grp; ?> border-l-4 border-l-red-400">
                             <?php echo $btn_del; ?>
                             <div class="grid grid-cols-12 gap-4 mb-3 pr-8">
@@ -242,10 +244,62 @@ $clients = get_terms(array('taxonomy' => 'client', 'hide_empty' => false));
                                     <button type="button" class="mt-2 text-xs font-bold text-emerald-600 hover:text-emerald-800 flex items-center gap-1 btn-add-bk-img" data-bidx="<?php echo $i; ?>">+ Batch Upload Images</button>
                                 </div>
                             </div>
+
+                            <div class="mt-1 border-t border-slate-200 flex justify-end bg-slate-100 -mx-5 -mb-1 rounded-b-lg">
+                                <input type="hidden" name="blockers[<?php echo $i; ?>][resolved]" value="0">
+                                <label class="flex items-center gap-2 cursor-pointer text-sm font-bold text-slate-700 bg-white border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-50 transition-colors shadow-sm">
+                                    <input type="checkbox" name="blockers[<?php echo $i; ?>][resolved]" value="1" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
+                                    Mark as Resolved
+                                </label>
+                            </div>
                         </div>
                     <?php endforeach; endif; ?>
                 </div>
                 <button type="button" class="btn-add-row mt-2 py-2 px-4 bg-slate-100 text-slate-700 rounded-lg text-sm font-bold flex items-center gap-2" data-target="list-blockers" data-template="tpl-blocker"><i data-lucide="plus" class="w-4 h-4"></i> Add Blocker</button>
+
+                <div class="mt-8 border-t border-slate-200 pt-4">
+                    <button type="button" id="btn-toggle-resolved-blockers" class="text-sm font-bold text-slate-500 hover:text-slate-800 flex items-center gap-2 transition-colors">
+                        <i data-lucide="archive" class="w-4 h-4"></i> Show Resolved Items
+                    </button>
+                    
+                    <div id="list-resolved-blockers" class="hidden mt-4 space-y-2">
+                        <?php if($blockers): foreach($blockers as $i => $b): 
+                            if (empty($b['resolved'])) continue; // Solo mostrar Resueltos
+                        ?>
+                            <div class="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-lg repeater-row">
+                                <div class="flex-1">
+                                    <span class="text-xs font-bold px-2 py-0.5 rounded uppercase bg-slate-200 text-slate-600 mr-2"><?php echo esc_html($b['sev']); ?></span>
+                                    <span class="font-semibold text-slate-800 text-sm line-through opacity-70"><?php echo esc_html($b['title']); ?></span>
+                                    
+                                    <input type="hidden" name="blockers[<?php echo $i; ?>][title]" value="<?php echo esc_attr($b['title']); ?>">
+                                    <input type="hidden" name="blockers[<?php echo $i; ?>][sev]" value="<?php echo esc_attr($b['sev']); ?>">
+                                    <input type="hidden" name="blockers[<?php echo $i; ?>][owner]" value="<?php echo esc_attr($b['owner']); ?>">
+                                    <input type="hidden" name="blockers[<?php echo $i; ?>][due_date]" value="<?php echo esc_attr($b['due_date_ymd']); ?>">
+                                    <input type="hidden" name="blockers[<?php echo $i; ?>][days_over]" value="<?php echo esc_attr($b['days_over']); ?>">
+                                    <textarea name="blockers[<?php echo $i; ?>][impact]" class="hidden"><?php echo esc_textarea($b['impact']); ?></textarea>
+                                    <input type="hidden" name="blockers[<?php echo $i; ?>][next]" value="<?php echo esc_attr($b['next']); ?>">
+                                </div>
+                                
+                                <input type="hidden" name="blockers[<?php echo $i; ?>][resolved]" value="0">
+                                <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1.5 rounded hover:bg-emerald-200 transition-colors shadow-sm">
+                                    <input type="checkbox" name="blockers[<?php echo $i; ?>][resolved]" value="1" checked class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500 cursor-pointer">
+                                    Resolved
+                                </label>
+                                
+                                <button type="button" class="ml-4 p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors btn-del-row" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            </div>
+                            
+                            <?php if(!empty($b['links'])): foreach($b['links'] as $l_idx => $link): ?>
+                                <input type="hidden" name="blockers[<?php echo $i; ?>][links][<?php echo $l_idx; ?>][label]" value="<?php echo esc_attr($link['label']); ?>">
+                                <input type="hidden" name="blockers[<?php echo $i; ?>][links][<?php echo $l_idx; ?>][url]" value="<?php echo esc_attr($link['url']); ?>">
+                            <?php endforeach; endif; ?>
+                            <?php if(!empty($b['images'])): foreach($b['images'] as $img_idx => $img): ?>
+                                <input type="hidden" name="blockers[<?php echo $i; ?>][images][<?php echo $img_idx; ?>][id]" value="<?php echo esc_attr($img['id']); ?>">
+                                <input type="hidden" name="blockers[<?php echo $i; ?>][images][<?php echo $img_idx; ?>][caption]" value="<?php echo esc_attr($img['caption']); ?>">
+                            <?php endforeach; endif; ?>
+                        <?php endforeach; endif; ?>
+                    </div>
+                </div>
             </div>
 
             <div id="form-card-goals" class="form-group hidden"><div id="list-goals"><?php if($goals): foreach($goals as $i => $g): ?><div class="<?php echo $grp; ?> border-l-4 border-l-blue-500 goal-row"><?php echo $btn_del; ?><div class="grid grid-cols-12 gap-4 mb-4 pb-4 border-b border-slate-200 pr-8"><div class="col-span-4"><label class="<?php echo $lb; ?>">Goal Name</label><input type="text" name="goals[<?php echo $i; ?>][goal]" value="<?php echo esc_attr($g['goal']); ?>" class="<?php echo $in; ?> font-bold text-base w-full"></div><div class="col-span-2"><label class="<?php echo $lb; ?>">Status</label><select name="goals[<?php echo $i; ?>][status]" class="<?php echo $sel; ?>"><option <?php selected($g['status'],'On Track'); ?>>On Track</option><option <?php selected($g['status'],'At Risk'); ?>>At Risk</option><option <?php selected($g['status'],'Blocked'); ?>>Blocked</option></select></div><div class="col-span-2"><label class="<?php echo $lb; ?>">Owner</label><input type="text" name="goals[<?php echo $i; ?>][owner]" value="<?php echo esc_attr($g['owner']); ?>" class="<?php echo $in; ?> w-full"></div><div class="col-span-2"><label class="<?php echo $lb; ?>">Target</label><input type="date" name="goals[<?php echo $i; ?>][target]" value="<?php echo esc_attr($g['target_ymd']); ?>" class="<?php echo $in; ?> w-full"></div><div class="col-span-2"><label class="<?php echo $lb; ?>">Days Left</label><input type="number" name="goals[<?php echo $i; ?>][days_left]" value="<?php echo esc_attr($g['days_left']); ?>" class="<?php echo $in; ?> w-full" placeholder="Auto"></div></div><div class="bg-white p-4 rounded-lg border border-slate-200"><label class="<?php echo $lb; ?> text-blue-500">Milestones</label><div class="milestones-container space-y-2"><?php if(isset($g['milestones']) && is_array($g['milestones'])): foreach($g['milestones'] as $j => $m): $m_text = isset($m['text']) ? $m['text'] : ''; $m_ass = isset($m['assignee']) ? $m['assignee'] : ''; ?><div class="flex gap-3 items-center repeater-row bg-slate-50 p-2 rounded border border-slate-100 relative pr-10"><input type="text" name="goals[<?php echo $i; ?>][milestones][<?php echo $j; ?>][text]" value="<?php echo esc_attr($m_text); ?>" class="<?php echo $in; ?> flex-1" placeholder="Task Name"><input type="text" name="goals[<?php echo $i; ?>][milestones][<?php echo $j; ?>][assignee]" value="<?php echo esc_attr($m_ass); ?>" class="<?php echo $in; ?> w-32" placeholder="Assignee"><div class="flex items-center gap-4 px-3 bg-white border border-slate-200 rounded h-10"><label class="flex items-center gap-1.5 text-xs text-emerald-600 font-bold"><input type="checkbox" name="goals[<?php echo $i; ?>][milestones][<?php echo $j; ?>][done]" value="1" <?php checked(!empty($m['done'])); ?>> Done</label><label class="flex items-center gap-1.5 text-xs text-red-500 font-bold"><input type="checkbox" name="goals[<?php echo $i; ?>][milestones][<?php echo $j; ?>][overdue]" value="1" <?php checked(!empty($m['overdue'])); ?>> Late</label></div><button type="button" class="absolute right-2 text-slate-400 hover:text-red-500 btn-del-row"><i data-lucide="x" class="w-5 h-5"></i></button></div><?php endforeach; endif; ?></div><button type="button" class="mt-3 py-1.5 px-3 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded text-xs font-bold flex items-center gap-1 btn-add-nested transition-colors" data-parent-name="goals[<?php echo $i; ?>][milestones]" data-template="tpl-milestone"><i data-lucide="plus" class="w-3 h-3"></i> Add Milestone</button></div></div><?php endforeach; endif; ?></div><button type="button" class="btn-add-row mt-2 py-2 px-4 bg-slate-100 text-slate-700 rounded-lg text-sm font-bold flex items-center gap-2" data-target="list-goals" data-template="tpl-goal"><i data-lucide="plus" class="w-4 h-4"></i> Add Goal</button></div>
@@ -271,6 +325,13 @@ $clients = get_terms(array('taxonomy' => 'client', 'hide_empty' => false));
             <div class="mt-4 pt-4 border-t border-slate-200 grid grid-cols-2 gap-6">
                 <div><label class="<?php echo $lb; ?> text-blue-500 mb-2">Resource Links</label><div class="space-y-2"></div><button type="button" class="mt-2 text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 btn-add-bk-link" data-bidx="{i}">+ Add Link</button></div>
                 <div><label class="<?php echo $lb; ?> text-emerald-500 mb-2">Images & Evidence</label><div class="space-y-2"></div><button type="button" class="mt-2 text-xs font-bold text-emerald-600 hover:text-emerald-800 flex items-center gap-1 btn-add-bk-img" data-bidx="{i}">+ Batch Upload Images</button></div>
+            </div>
+            <div class="mt-1 border-t border-slate-200 flex justify-end bg-slate-100 -mx-5 -mb-5 rounded-b-lg">
+                <input type="hidden" name="blockers[{i}][resolved]" value="0">
+                <label class="flex items-center gap-2 cursor-pointer text-sm font-bold text-slate-700 bg-white border border-slate-300 px-4 py-2 rounded-lg hover:bg-slate-50 transition-colors shadow-sm">
+                    <input type="checkbox" name="blockers[{i}][resolved]" value="1" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer">
+                    Mark as Resolved
+                </label>
             </div>
         </div>
     </template>

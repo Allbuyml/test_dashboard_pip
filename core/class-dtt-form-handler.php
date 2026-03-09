@@ -266,7 +266,8 @@ class DTT_Form_Handler {
                 }
 
                 foreach ($_POST['blockers'] as $b_idx => $b_data) {
-                    $existing_resolved = isset($old_blockers[$b_idx]['resolved']) ? $old_blockers[$b_idx]['resolved'] : 0;
+                    // SE OBTIENE EL ESTADO DE RESOLVED DIRECTO DESDE EL FORMULARIO
+                    $existing_resolved = isset($b_data['resolved']) ? intval($b_data['resolved']) : 0;
                     $existing_comments = isset($old_blockers[$b_idx]['comments']) ? $old_blockers[$b_idx]['comments'] : [];
 
                     $row = [
@@ -395,7 +396,9 @@ class DTT_Form_Handler {
         }
 
         clean_post_cache($pid);
-        wp_redirect( get_permalink($pid) );
+        
+        // REDIRECCIÓN CON BYPASS DE CACHÉ
+        wp_redirect( add_query_arg('t', time(), get_permalink($pid)) );
         exit;
     }
 
@@ -433,7 +436,8 @@ class DTT_Form_Handler {
             update_field('field_last_upd', date('Y-m-d'), $pid);
             update_field('field_comp_color', '#10b981', $pid);
             
-            wp_redirect( get_permalink($pid) );
+            // REDIRECCIÓN CON BYPASS DE CACHÉ
+            wp_redirect( add_query_arg('t', time(), get_permalink($pid)) );
             exit;
         }
         wp_die('Error creating project.');
