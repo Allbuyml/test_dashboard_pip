@@ -6,7 +6,6 @@ $grid_class = $show_project_progress ? 'md:grid-cols-3' : 'md:grid-cols-2 lg:gri
 $show_resolved = false; 
 ?>
 
-
 <div class="space-y-6 font-sans relative">
     
     <div class="bg-gradient-to-br from-red-50 to-amber-50 rounded-xl shadow-md border-2 border-red-200 p-6 relative group">
@@ -29,15 +28,15 @@ $show_resolved = false;
         </div>
 
         <div class="space-y-3" id="blockers-list-container" data-show-resolved="<?php echo $show_resolved ? 'true' : 'false'; ?>">
-            <?php foreach($blockers as $b_idx => $b): 
+            <?php foreach($blockers as $b): 
+                $b_idx = $b['_acf_index']; // FIJAMOS EL ÍNDICE REAL DE LA DB
                 $is_resolved = !empty($b['resolved']);
                 
-                // Aplicar lógica de Ocultar Resueltos en el front
                 if (!$show_resolved && $is_resolved) continue;
 
                 $style = $is_resolved ? ['border-emerald-300 opacity-75', 'bg-emerald-200 text-emerald-800'] : match($b['sev']) { 'critical'=>['border-red-300','bg-red-200 text-red-800'], 'high'=>['border-amber-300','bg-amber-200 text-amber-800'], default=>['border-blue-300','bg-blue-200 text-blue-800'] };
             ?>
-            <div class="rounded-lg border-2 bg-white overflow-hidden p-0 <?php echo $style[0]; ?> blocker-card" data-idx="<?php echo $b_idx; ?>">
+            <div class="rounded-lg border-2 bg-white overflow-hidden p-0 <?php echo $style[0]; ?> blocker-card" data-idx="<?php echo esc_attr($b_idx); ?>">
                 
                 <div class="p-4 pb-3">
                     <div class="flex items-start justify-between mb-3">
@@ -61,19 +60,25 @@ $show_resolved = false;
                             <?php endif; ?>
                         </div>
 
-                                        <div class="flex items-center justify-between px-4 pb-4">
-                    <button class="btn-toggle-comments flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors uppercase tracking-wide">
-                        <i data-lucide="message-square" class="w-4 h-4"></i>
-                        <?php echo count($b['comments']); ?> Comments <i data-lucide="chevron-right" class="w-3 h-3 transition-transform"></i>
-                    </button>
-                    <?php if($is_admin): ?>
-                    <?php if(!$is_resolved): ?>
-                    <button class="btn-resolve-blocker flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:text-emerald-900 bg-emerald-100 hover:bg-emerald-200 px-4 py-2 rounded-lg transition-colors shadow-sm">
-                        <i data-lucide="check" class="w-4 h-4"></i> Mark Resolved
-                    </button>
-                    <?php endif; ?>
-                    <?php endif; ?>
-                </div>
+                        <div class="flex items-center justify-between px-4 pb-4">
+                            <button class="btn-toggle-comments flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors uppercase tracking-wide">
+                                <i data-lucide="message-square" class="w-4 h-4"></i>
+                                <?php echo count($b['comments']); ?> Comments <i data-lucide="chevron-right" class="w-3 h-3 transition-transform"></i>
+                            </button>
+                            <?php if($is_admin): ?>
+                            <?php if(!$is_resolved): ?>
+                            <form action="<?php echo esc_url(admin_url('admin-post.php')); ?>" method="post" class="m-0 p-0 inline-block">
+                                <input type="hidden" name="action" value="dtt_resolve_blocker_sync">
+                                <input type="hidden" name="pid" value="<?php echo esc_attr($pid); ?>">
+                                <input type="hidden" name="idx" value="<?php echo esc_attr($b_idx); ?>">
+                                <?php wp_nonce_field('dtt_resolve_action', 'dtt_nonce'); ?>
+                                <button type="submit" class="btn-resolve-native flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:text-emerald-900 bg-emerald-100 hover:bg-emerald-200 px-4 py-2 rounded-lg transition-colors shadow-sm cursor-pointer" onclick="this.innerHTML='<i data-lucide=\'loader\' class=\'w-4 h-4 animate-spin\'></i> Resolving...'; if(typeof lucide !== 'undefined') lucide.createIcons();">
+                                    <i data-lucide="check" class="w-4 h-4"></i> Mark Resolved
+                                </button>
+                            </form>
+                            <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
                         
                         <div class="flex items-end gap-4 ml-4 flex-shrink-0">
                             <?php if(!empty($b['images'])): ?>
@@ -132,7 +137,7 @@ $show_resolved = false;
                         </div>
                         <div class="hidden-comments hidden space-y-4 mb-4">
                             <?php foreach($hidden_comments as $c_idx => $c): ?>
-                                <div class="comment-item flex gap-3 opacity-75 hover:opacity-100 transition-opacity relative group/item" data-bidx="<?php echo $b_idx; ?>" data-cidx="<?php echo $c_idx; ?>">
+                                <div class="comment-item flex gap-3 opacity-75 hover:opacity-100 transition-opacity relative group/item" data-bidx="<?php echo esc_attr($b_idx); ?>" data-cidx="<?php echo $c_idx; ?>">
                                     <div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold shadow-sm <?php echo ($c['org']=='PIP') ? 'bg-slate-800 text-white' : 'bg-amber-100 text-amber-800'; ?>">
                                         <?php echo esc_html(substr(str_replace(' ', '', $c['author']), 0, 2)); ?>
                                     </div>
@@ -171,7 +176,7 @@ $show_resolved = false;
                     <?php if(!empty($visible_comments)): ?>
                         <div class="space-y-4">
                         <?php foreach($visible_comments as $c_idx => $c): ?>
-                            <div class="comment-item flex gap-3 relative group/item" data-bidx="<?php echo $b_idx; ?>" data-cidx="<?php echo $c_idx; ?>">
+                            <div class="comment-item flex gap-3 relative group/item" data-bidx="<?php echo esc_attr($b_idx); ?>" data-cidx="<?php echo $c_idx; ?>">
                                 <div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold shadow-sm <?php echo ($c['org']=='PIP') ? 'bg-slate-800 text-white' : 'bg-amber-100 text-amber-800'; ?>">
                                     <?php echo esc_html(substr(str_replace(' ', '', $c['author']), 0, 2)); ?>
                                 </div>
@@ -218,7 +223,7 @@ $show_resolved = false;
                     <div class="comment-form-wrapper mt-4">
                         <?php if(!$is_resolved): ?>
                         <form class="frm-add-comment bg-white p-4 rounded-lg border border-slate-200 shadow-sm relative">
-                            <input type="hidden" name="blocker_idx" value="<?php echo $b_idx; ?>">
+                            <input type="hidden" name="blocker_idx" value="<?php echo esc_attr($b_idx); ?>">
                             
                             <select name="author" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 bg-slate-50 focus:ring-2 focus:ring-blue-500 outline-none mb-3" required>
                                 <option value="">Select your name to comment...</option>
@@ -422,7 +427,7 @@ $show_resolved = false;
                     <?php endfor; ?>
 
                     
-                    <?php var_dump($timeline_dates); if($timeline_dates['show_today']): ?>
+                    <?php if($timeline_dates['show_today']): ?>
                         <div class="absolute top-0 bottom-[-20px] w-[2px] bg-blue-600 z-20" style="left: <?php echo esc_attr($timeline_dates['today_pct']); ?>%;">
                             <div class="absolute -top-1 -left-1 w-2.5 h-2.5 rounded-full bg-blue-600"></div>
                             <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] font-bold text-blue-600 uppercase bg-white px-1">Today</div>

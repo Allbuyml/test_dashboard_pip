@@ -428,37 +428,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Lógica Real Time de "Marcar como resuelto"
-    document.body.addEventListener('click', (e) => {
-        const resolveBtn = e.target.closest('.btn-resolve-blocker');
-        if(resolveBtn) {
-            e.preventDefault();
-            const card = resolveBtn.closest('.blocker-card');
-            const idx = card.getAttribute('data-idx');
-            
-            const originalHTML = resolveBtn.innerHTML;
-            resolveBtn.innerHTML = '<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin"></i> Processing...';
-            if(typeof lucide !== 'undefined') lucide.createIcons();
-            resolveBtn.disabled = true;
-
-            const formData = new FormData();
-            formData.append('action', 'dtt_resolve_blocker');
-            formData.append('pid', window.dtt_pid);
-            formData.append('idx', idx);
-
-            fetch(window.dtt_ajax_url, { method: 'POST', body: formData })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) {
-                    // Forzar recarga con bypass de cache para que todos los templates se regeneren
-                    window.location.href = window.location.pathname + '?t=' + new Date().getTime() + window.location.hash;
-                } else { 
-                    alert('Failed to resolve'); resolveBtn.innerHTML = originalHTML; resolveBtn.disabled = false; 
-                }
-            });
-        }
-    });
-
     // ==========================================
     // 5. NOTIFY CLIENT (Modal + Logica de Checkboxes)
     // ==========================================

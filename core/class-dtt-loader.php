@@ -18,6 +18,7 @@ class DTT_Loader {
         $forms = new DTT_Form_Handler();
         add_action( 'admin_post_dtt_update_project', array( $forms, 'handle_update' ) );
         add_action( 'admin_post_dtt_create_project', array( $forms, 'handle_create' ) );
+        add_action( 'admin_post_dtt_resolve_blocker_sync', array( $forms, 'handle_resolve_blocker_sync' ) );
 
         $admin_menu = new DTT_Admin_Menu();
         add_action( 'admin_menu', array( $admin_menu, 'add_menu_pages' ) );

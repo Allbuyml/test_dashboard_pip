@@ -2,14 +2,14 @@
 /*
 Plugin Name: Dashboard Task Tracker
 Description: Enterprise Dashboard V16.2 (Robust Fallbacks, Custom URLs, Dynamic Edits, Resolved Items Logic).
-Version: 16.2
+Version: 17.0
 Author: JesusDevPIP
 Text Domain: dashboard-task-tracker
 */
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'DTT_VERSION', '16.2' );
+define( 'DTT_VERSION', '17.0' );
 define( 'DTT_PATH', plugin_dir_path( __FILE__ ) );
 define( 'DTT_URL', plugin_dir_url( __FILE__ ) );
 
@@ -24,6 +24,7 @@ function dtt_init() {
     $form_handler = new DTT_Form_Handler();
     add_action( 'admin_post_dtt_update_project', array( $form_handler, 'handle_update' ) );
     add_action( 'admin_post_dtt_create_project', array( $form_handler, 'handle_create' ) );
+    add_action( 'admin_post_dtt_resolve_blocker_sync', array( $form_handler, 'handle_resolve_blocker_sync' ) );
 }
 add_action( 'plugins_loaded', 'dtt_init' );
 

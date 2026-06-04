@@ -195,8 +195,9 @@ $clients = get_terms(array('taxonomy' => 'client', 'hide_empty' => false));
 
             <div id="form-card-blockers" class="form-group hidden">
                 <div id="list-blockers">
-                    <?php if($blockers): foreach($blockers as $i => $b): 
-                        if (!empty($b['resolved'])) continue; // Solo mostrar NO resueltos
+                    <?php if($blockers): foreach($blockers as $b): 
+                        $i = $b['_acf_index']; // Índice real DB
+                        if (!empty($b['resolved'])) continue; 
                     ?>
                         <div class="<?php echo $grp; ?> border-l-4 border-l-red-400">
                             <?php echo $btn_del; ?>
@@ -263,8 +264,9 @@ $clients = get_terms(array('taxonomy' => 'client', 'hide_empty' => false));
                     </button>
                     
                     <div id="list-resolved-blockers" class="hidden mt-4 space-y-2">
-                        <?php if($blockers): foreach($blockers as $i => $b): 
-                            if (empty($b['resolved'])) continue; // Solo mostrar Resueltos
+                        <?php if($blockers): foreach($blockers as $b): 
+                            $i = $b['_acf_index']; // Índice real DB
+                            if (empty($b['resolved'])) continue; 
                         ?>
                             <div class="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-lg repeater-row">
                                 <div class="flex-1">

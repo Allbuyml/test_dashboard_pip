@@ -98,54 +98,61 @@ class DTT_Data {
         // BLOCKERS, COMMENTS Y RESOLVED
         $raw_blockers = $get_rep('blockers');
         $blockers = [];
-        foreach ($raw_blockers as $b) {
-            if (!is_array($b)) continue; 
-            
-            $b['due_date_ymd'] = $to_ymd($b['due_date'] ?? '');
-            if ((!isset($b['days_over']) || $b['days_over'] === '') && !empty($b['due_date_ymd'])) {
-                $b['days_over'] = max(0, floor(($now - strtotime($b['due_date_ymd'])) / 86400));
-            }
-            
-            $b['resolved'] = !empty($b['resolved']); // Booleano
-            
-            // Procesar comentarios enriquecidos
-            $clean_comments = [];
-            if(isset($b['comments']) && is_array($b['comments'])) {
-                foreach($b['comments'] as $c) {
-                    $c_imgs = [];
-                    if(isset($c['images']) && is_array($c['images'])) {
-                        foreach($c['images'] as $img) {
-                            if(!empty($img['id'])) {
-                                $url = wp_get_attachment_url($img['id']);
-                                if($url) $c_imgs[] = ['id' => $img['id'], 'url' => $url];
+        
+        if (is_array($raw_blockers)) {
+            foreach ($raw_blockers as $orig_idx => $b) {
+                if (!is_array($b)) continue; 
+                
+                // CRUCIAL: Guardamos la posición real en la base de datos
+                $b['_acf_index'] = $orig_idx; 
+                
+                $b['due_date_ymd'] = $to_ymd($b['due_date'] ?? '');
+                if ((!isset($b['days_over']) || $b['days_over'] === '') && !empty($b['due_date_ymd'])) {
+                    $b['days_over'] = max(0, floor(($now - strtotime($b['due_date_ymd'])) / 86400));
+                }
+                
+                $b['resolved'] = !empty($b['resolved']); // Booleano
+                
+                // Procesar comentarios enriquecidos
+                $clean_comments = [];
+                if(isset($b['comments']) && is_array($b['comments'])) {
+                    foreach($b['comments'] as $c) {
+                        $c_imgs = [];
+                        if(isset($c['images']) && is_array($c['images'])) {
+                            foreach($c['images'] as $img) {
+                                if(!empty($img['id'])) {
+                                    $url = wp_get_attachment_url($img['id']);
+                                    if($url) $c_imgs[] = ['id' => $img['id'], 'url' => $url];
+                                }
                             }
                         }
-                    }
-                    $c['images'] = $c_imgs;
-                    $clean_comments[] = $c;
-                }
-            }
-            $b['comments'] = $clean_comments;
-
-            $clean_links = [];
-            if (isset($b['links']) && is_array($b['links'])) {
-                foreach ($b['links'] as $link) { if (is_array($link)) $clean_links[] = $link; }
-            }
-            $b['links'] = $clean_links;
-
-            $clean_imgs = [];
-            if (isset($b['images']) && is_array($b['images'])) {
-                foreach ($b['images'] as $img) {
-                    if (is_array($img) && !empty($img['id'])) {
-                        $url = wp_get_attachment_url($img['id']);
-                        if ($url) { $img['url'] = $url; $clean_imgs[] = $img; }
+                        $c['images'] = $c_imgs;
+                        $clean_comments[] = $c;
                     }
                 }
+                $b['comments'] = $clean_comments;
+
+                $clean_links = [];
+                if (isset($b['links']) && is_array($b['links'])) {
+                    foreach ($b['links'] as $link) { if (is_array($link)) $clean_links[] = $link; }
+                }
+                $b['links'] = $clean_links;
+
+                $clean_imgs = [];
+                if (isset($b['images']) && is_array($b['images'])) {
+                    foreach ($b['images'] as $img) {
+                        if (is_array($img) && !empty($img['id'])) {
+                            $url = wp_get_attachment_url($img['id']);
+                            if ($url) { $img['url'] = $url; $clean_imgs[] = $img; }
+                        }
+                    }
+                }
+                $b['images'] = $clean_imgs;
+                $blockers[] = $b;
             }
-            $b['images'] = $clean_imgs;
-            $blockers[] = $b;
         }
 
+        // Al ordenar visualmente, los índices originales se conservan seguros en _acf_index
         $sev_weights = ['critical' => 1, 'high' => 2, 'medium' => 3];
         usort($blockers, function($a, $b) use ($sev_weights) {
             // Mover los resueltos al fondo
@@ -189,13 +196,40 @@ class DTT_Data {
         }
 
         // GANTT
-        $raw_proj_start = $eng_start ?: date('Y-m-d', strtotime('-2 weeks'));
+        $gantt_raw_items = $get_rep('gantt_items');
+        $min_gantt_ts = PHP_INT_MAX;
+        $max_gantt_ts = 0;
+        $has_valid_gantt = false;
+
+        foreach($gantt_raw_items as $g) {
+            if(!is_array($g)) continue;
+            $s = strtotime($g['start'] ?? date('Y-m-d'));
+            $e = strtotime($g['end'] ?? date('Y-m-d', strtotime('+1 week')));
+            if ($s && $s < $min_gantt_ts) $min_gantt_ts = $s;
+            if ($e && $e > $max_gantt_ts) $max_gantt_ts = $e;
+            $has_valid_gantt = true;
+        }
+
+        $start_ts = strtotime('-2 weeks');
+
+        if ($has_valid_gantt) {
+            if ($max_gantt_ts < $now) {
+                $start_ts = $min_gantt_ts;
+            } elseif ($min_gantt_ts > strtotime('+2 weeks')) {
+                $start_ts = $min_gantt_ts;
+            }
+        } elseif ($eng_start) {
+            $start_ts = strtotime($eng_start);
+        }
+
+        $raw_proj_start = date('Y-m-d', $start_ts);
+
         try { $start_dt = new DateTime($raw_proj_start); } catch (Exception $e) { $start_dt = new DateTime('-2 weeks'); }
 
         if ($start_dt->format('N') != 1) { $start_dt->modify('last monday'); }
         
         $p_start_ts = $start_dt->getTimestamp();
-        $total_sec = 70 * 86400; // 10 semanas
+        $total_sec = 70 * 86400; 
         
         $timeline_labels = [];
         for ($i = 0; $i <= 10; $i++) {
@@ -208,7 +242,7 @@ class DTT_Data {
         $today_pct = number_format(max(0, min(100, $today_pct_raw)), 4, '.', '');
 
         $gantt = [];
-        foreach($get_rep('gantt_items') as $g) {
+        foreach($gantt_raw_items as $g) {
             if(!is_array($g)) continue;
             $item_start = $g['start'] ?? date('Y-m-d');
             $item_end = $g['end'] ?? date('Y-m-d', strtotime('+1 week'));

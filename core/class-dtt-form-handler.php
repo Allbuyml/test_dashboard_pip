@@ -12,9 +12,6 @@ class DTT_Form_Handler {
 
         add_action('wp_ajax_dtt_delete_comment', [$this, 'ajax_delete_comment']);
         add_action('wp_ajax_nopriv_dtt_delete_comment', [$this, 'ajax_delete_comment']);
-
-        add_action('wp_ajax_dtt_resolve_blocker', [$this, 'ajax_resolve_blocker']);
-        add_action('wp_ajax_nopriv_dtt_resolve_blocker', [$this, 'ajax_resolve_blocker']);
         
         add_action('wp_ajax_dtt_notify_client', [$this, 'ajax_notify_client']);
         add_action('wp_ajax_nopriv_dtt_notify_client', [$this, 'ajax_notify_client']);
@@ -106,7 +103,6 @@ class DTT_Form_Handler {
 
         $blockers = get_field('field_blockers', $pid);
         if(isset($blockers[$b_idx]['comments'][$c_idx])) {
-            // Actualizar texto preservando saltos de línea
             $blockers[$b_idx]['comments'][$c_idx]['text'] = nl2br($text);
             update_field('field_blockers', $blockers, $pid);
             clean_post_cache($pid);
@@ -129,15 +125,12 @@ class DTT_Form_Handler {
             if(!empty($blockers[$b_idx]['comments'][$c_idx]['images'])) {
                 foreach($blockers[$b_idx]['comments'][$c_idx]['images'] as $img) {
                     if(!empty($img['id'])) {
-                        wp_delete_attachment($img['id'], true); // true = force delete from server
+                        wp_delete_attachment($img['id'], true);
                     }
                 }
             }
 
-            // Remover el comentario del array
             unset($blockers[$b_idx]['comments'][$c_idx]);
-            
-            // Reindexar el array para evitar problemas en ACF
             $blockers[$b_idx]['comments'] = array_values($blockers[$b_idx]['comments']);
             
             update_field('field_blockers', $blockers, $pid);
@@ -147,20 +140,29 @@ class DTT_Form_Handler {
         wp_send_json_error(['message' => 'Comment not found.']);
     }
 
-    public function ajax_resolve_blocker() {
+    // MANEJADOR NATIVO DEL BOTON RESOLVER SIN AJAX
+    public function handle_resolve_blocker_sync() {
+        if ( ! current_user_can('manage_options') ) wp_die('Unauthorized');
+        check_admin_referer( 'dtt_resolve_action', 'dtt_nonce' );
+
         $pid = isset($_POST['pid']) ? intval($_POST['pid']) : 0;
         $idx = isset($_POST['idx']) ? intval($_POST['idx']) : -1;
-        
-        if(!$pid || $idx < 0) wp_send_json_error();
 
-        $blockers = get_field('field_blockers', $pid);
-        if(is_array($blockers) && isset($blockers[$idx])) {
-            $blockers[$idx]['resolved'] = 1;
-            update_field('field_blockers', $blockers, $pid);
-            clean_post_cache($pid);
-            wp_send_json_success();
+        if ($pid && $idx >= 0) {
+            $blockers = get_field('field_blockers', $pid);
+            if(is_array($blockers) && isset($blockers[$idx])) {
+                $blockers[$idx]['resolved'] = 1;
+                update_field('field_blockers', $blockers, $pid);
+                
+                // Rotura de cache agresiva
+                clean_post_cache($pid);
+                wp_cache_delete($pid, 'posts');
+            }
         }
-        wp_send_json_error();
+        
+        // Redirección forzando limpiar caché de navegador
+        wp_redirect( add_query_arg(['t' => time(), 'nocache' => 1], get_permalink($pid)) );
+        exit;
     }
 
     public function ajax_notify_client() {
@@ -266,7 +268,6 @@ class DTT_Form_Handler {
                 }
 
                 foreach ($_POST['blockers'] as $b_idx => $b_data) {
-                    // SE OBTIENE EL ESTADO DE RESOLVED DIRECTO DESDE EL FORMULARIO
                     $existing_resolved = isset($b_data['resolved']) ? intval($b_data['resolved']) : 0;
                     $existing_comments = isset($old_blockers[$b_idx]['comments']) ? $old_blockers[$b_idx]['comments'] : [];
 
@@ -396,9 +397,10 @@ class DTT_Form_Handler {
         }
 
         clean_post_cache($pid);
+        wp_cache_delete($pid, 'posts');
         
         // REDIRECCIÓN CON BYPASS DE CACHÉ
-        wp_redirect( add_query_arg('t', time(), get_permalink($pid)) );
+        wp_redirect( add_query_arg(['t' => time(), 'nocache' => 1], get_permalink($pid)) );
         exit;
     }
 
@@ -437,7 +439,7 @@ class DTT_Form_Handler {
             update_field('field_comp_color', '#10b981', $pid);
             
             // REDIRECCIÓN CON BYPASS DE CACHÉ
-            wp_redirect( add_query_arg('t', time(), get_permalink($pid)) );
+            wp_redirect( add_query_arg(['t' => time(), 'nocache' => 1], get_permalink($pid)) );
             exit;
         }
         wp_die('Error creating project.');
